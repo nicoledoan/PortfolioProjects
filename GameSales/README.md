@@ -2,7 +2,7 @@
 
 ## 📌 Overview
 
-This project analyzes retail transaction data using SQL to uncover trends in sales performance, transaction behavior, and revenue patterns over time. The analysis demonstrates practical use of SQL for real-world analytics, including aggregations, window functions, and time-series calculations.
+This project analyzes retail transaction data using SQL to evaluate sales performance, transaction behavior, and revenue trends over time. It demonstrates how raw transactional data can be transformed into actionable insights using joins, window functions, and time-series analysis.
 
 ---
 
@@ -120,11 +120,15 @@ Implemented MySQL date functions to replicate common analytics patterns:
 
 ## 📈 Example Outputs
 
-* Daily revenue with cumulative sales growth
-* Rolling 7-day average sales
-* Quartile-based transaction segmentation
+This project produces the following analytical outputs:
 
-*(Optional: include screenshots or charts for visual context)*
+- **Sales Summary Metrics**  
+  → `full_stats_summary.csv`
+
+- **Daily Sales Trends (Running Total + 7-Day Avg)**  
+  → `daily_sales_trend.csv`
+
+These outputs demonstrate transaction distribution, revenue growth, and smoothed sales trends over time.
 
 ---
 
