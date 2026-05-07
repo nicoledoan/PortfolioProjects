@@ -1,391 +1,251 @@
-DROP TABLE IF EXISTS CovidDeaths;
+# 🦠 COVID-19 Data Exploration (SQL Project)
 
-CREATE TABLE CovidDeaths (
-    iso_code VARCHAR(10),
-    continent VARCHAR(50),
-    location VARCHAR(100),
-    date DATE,
-    population BIGINT,
-    total_cases DOUBLE,
-    new_cases DOUBLE,
-    new_cases_smoothed DOUBLE,
-    total_deaths DOUBLE,
-    new_deaths DOUBLE,
-    new_deaths_smoothed DOUBLE,
-    total_cases_per_million DOUBLE,
-    new_cases_per_million DOUBLE,
-    new_cases_smoothed_per_million DOUBLE,
-    total_deaths_per_million DOUBLE,
-    new_deaths_per_million DOUBLE,
-    new_deaths_smoothed_per_million DOUBLE,
-    reproduction_rate DOUBLE,
-    icu_patients DOUBLE,
-    icu_patients_per_million DOUBLE,
-    hosp_patients DOUBLE,
-    hosp_patients_per_million DOUBLE,
-    weekly_icu_admissions DOUBLE,
-    weekly_icu_admissions_per_million DOUBLE,
-    weekly_hosp_admissions DOUBLE,
-    weekly_hosp_admissions_per_million DOUBLE
-);
+## 📌 Overview
 
-LOAD DATA INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/CovidDeaths.csv'
-INTO TABLE CovidDeaths
-FIELDS TERMINATED BY ','
-OPTIONALLY ENCLOSED BY '"'
-LINES TERMINATED BY '\r\n'
-IGNORE 1 ROWS
-(@iso_code,@continent,@location,@date,@population,@total_cases,@new_cases,@new_cases_smoothed,
-@total_deaths,@new_deaths,@new_deaths_smoothed,@total_cases_per_million,@new_cases_per_million,
-@new_cases_smoothed_per_million,@total_deaths_per_million,@new_deaths_per_million,
-@new_deaths_smoothed_per_million,@reproduction_rate,@icu_patients,@icu_patients_per_million,
-@hosp_patients,@hosp_patients_per_million,@weekly_icu_admissions,
-@weekly_icu_admissions_per_million,@weekly_hosp_admissions,@weekly_hosp_admissions_per_million,
-@extra1,@extra2)
-SET
-iso_code = NULLIF(@iso_code,''),
-continent = NULLIF(@continent,''),
-location = NULLIF(@location,''),
-date = STR_TO_DATE(@date, '%m/%d/%Y'),
-population = NULLIF(@population,''),
-total_cases = NULLIF(@total_cases,''),
-new_cases = NULLIF(@new_cases,''),
-new_cases_smoothed = NULLIF(@new_cases_smoothed,''),
-total_deaths = NULLIF(@total_deaths,''),
-new_deaths = NULLIF(@new_deaths,''),
-new_deaths_smoothed = NULLIF(@new_deaths_smoothed,''),
-total_cases_per_million = NULLIF(@total_cases_per_million,''),
-new_cases_per_million = NULLIF(@new_cases_per_million,''),
-new_cases_smoothed_per_million = NULLIF(@new_cases_smoothed_per_million,''),
-total_deaths_per_million = NULLIF(@total_deaths_per_million,''),
-new_deaths_per_million = NULLIF(@new_deaths_per_million,''),
-new_deaths_smoothed_per_million = NULLIF(@new_deaths_smoothed_per_million,''),
-reproduction_rate = NULLIF(@reproduction_rate,''),
-icu_patients = NULLIF(@icu_patients,''),
-icu_patients_per_million = NULLIF(@icu_patients_per_million,''),
-hosp_patients = NULLIF(@hosp_patients,''),
-hosp_patients_per_million = NULLIF(@hosp_patients_per_million,''),
-weekly_icu_admissions = NULLIF(@weekly_icu_admissions,''),
-weekly_icu_admissions_per_million = NULLIF(@weekly_icu_admissions_per_million,''),
-weekly_hosp_admissions = NULLIF(@weekly_hosp_admissions,''),
-weekly_hosp_admissions_per_million = NULLIF(@weekly_hosp_admissions_per_million,'');
+This project explores global COVID-19 deaths, cases, population, testing, and vaccination data using MySQL. The analysis focuses on infection rates, death rates, vaccination progress, and global trends over time.
 
-SELECT *
-FROM CovidDeaths;
+It demonstrates how raw public health data can be imported, cleaned, transformed, and analyzed using SQL.
 
+---
 
-CREATE TABLE CovidVaccinations (
-    iso_code VARCHAR(10),
-    continent VARCHAR(50),
-    location VARCHAR(100),
-    date DATE,
+## 🗂️ Dataset
 
-    new_tests DOUBLE,
-    total_tests DOUBLE,
-    total_tests_per_thousand DOUBLE,
-    new_tests_per_thousand DOUBLE,
-    new_tests_smoothed DOUBLE,
-    new_tests_smoothed_per_thousand DOUBLE,
-    positive_rate DOUBLE,
-    tests_per_case DOUBLE,
-    tests_units VARCHAR(50),
+The project is built on two main tables:
 
-    total_vaccinations DOUBLE,
-    people_vaccinated DOUBLE,
-    people_fully_vaccinated DOUBLE,
-    new_vaccinations DOUBLE,
-    new_vaccinations_smoothed DOUBLE,
+* **CovidDeaths** – COVID case, death, population, hospitalization, and ICU data
+* **CovidVaccinations** – COVID testing, vaccination, demographic, and health indicator data
 
-    total_vaccinations_per_hundred DOUBLE,
-    people_vaccinated_per_hundred DOUBLE,
-    people_fully_vaccinated_per_hundred DOUBLE,
-    new_vaccinations_smoothed_per_million DOUBLE,
+---
 
-    stringency_index DOUBLE,
-    population_density DOUBLE,
-    median_age DOUBLE,
-    aged_65_older DOUBLE,
-    aged_70_older DOUBLE,
+## ⚙️ Key Techniques Used
 
-    gdp_per_capita DOUBLE,
-    extreme_poverty DOUBLE,
-    cardiovasc_death_rate DOUBLE,
-    diabetes_prevalence DOUBLE,
+* Table creation with `CREATE TABLE`
+* CSV import using `LOAD DATA INFILE`
+* Data cleaning with `NULLIF`
+* Date conversion using `STR_TO_DATE`
+* Joins across deaths and vaccination datasets
+* Aggregate functions:
 
-    female_smokers DOUBLE,
-    male_smokers DOUBLE,
-    handwashing_facilities DOUBLE,
-    hospital_beds_per_thousand DOUBLE,
-    life_expectancy DOUBLE,
-    human_development_index DOUBLE
-);
+  * `SUM`
+  * `MAX`
 
-LOAD DATA INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/CovidVax.csv'
-INTO TABLE CovidVaccinations
-FIELDS TERMINATED BY ','
-OPTIONALLY ENCLOSED BY '"'
-LINES TERMINATED BY '\r\n'
-IGNORE 1 ROWS;
+* Window Functions:
 
-/*MySQL tries to insert the raw value before your SET clause converts it, which causes the failure.*/
-LOAD DATA INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/CovidVax.csv'
-INTO TABLE CovidVaccinations
-FIELDS TERMINATED BY ','
-OPTIONALLY ENCLOSED BY '"'
-LINES TERMINATED BY '\r\n'
-IGNORE 1 ROWS
-SET
-date = STR_TO_DATE(@date,'%m/%d/%Y');
+  * `SUM() OVER`
 
-LOAD DATA INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/CovidVax.csv'
-INTO TABLE CovidVaccinations
-FIELDS TERMINATED BY ','
-OPTIONALLY ENCLOSED BY '"'
-LINES TERMINATED BY '\r\n'
-IGNORE 1 ROWS
-(@iso_code,@continent,@location,@date,@new_tests,@total_tests,@total_tests_per_thousand,
-@new_tests_per_thousand,@new_tests_smoothed,@new_tests_smoothed_per_thousand,
-@positive_rate,@tests_per_case,@tests_units,@total_vaccinations,@people_vaccinated,
-@people_fully_vaccinated,@new_vaccinations,@new_vaccinations_smoothed,
-@total_vaccinations_per_hundred,@people_vaccinated_per_hundred,
-@people_fully_vaccinated_per_hundred,@new_vaccinations_smoothed_per_million,
-@stringency_index,@population_density,@median_age,@aged_65_older,@aged_70_older,
-@gdp_per_capita,@extreme_poverty,@cardiovasc_death_rate,@diabetes_prevalence,
-@female_smokers,@male_smokers,@handwashing_facilities,@hospital_beds_per_thousand,
-@life_expectancy,@human_development_index)
-SET
-iso_code = NULLIF(@iso_code,''),
-continent = NULLIF(@continent,''),
-location = NULLIF(@location,''),
-date = STR_TO_DATE(@date,'%m/%d/%Y'),
+* Common Table Expressions (CTEs)
+* Temporary tables
+* Views for visualization outputs
 
-new_tests = NULLIF(@new_tests,''),
-total_tests = NULLIF(@total_tests,''),
-total_tests_per_thousand = NULLIF(@total_tests_per_thousand,''),
-new_tests_per_thousand = NULLIF(@new_tests_per_thousand,''),
-new_tests_smoothed = NULLIF(@new_tests_smoothed,''),
-new_tests_smoothed_per_thousand = NULLIF(@new_tests_smoothed_per_thousand,''),
-positive_rate = NULLIF(@positive_rate,''),
-tests_per_case = NULLIF(@tests_per_case,''),
-tests_units = NULLIF(@tests_units,''),
+---
 
-total_vaccinations = NULLIF(@total_vaccinations,''),
-people_vaccinated = NULLIF(@people_vaccinated,''),
-people_fully_vaccinated = NULLIF(@people_fully_vaccinated,''),
-new_vaccinations = NULLIF(@new_vaccinations,''),
-new_vaccinations_smoothed = NULLIF(@new_vaccinations_smoothed,''),
+## 📊 Key Analyses
 
-total_vaccinations_per_hundred = NULLIF(@total_vaccinations_per_hundred,''),
-people_vaccinated_per_hundred = NULLIF(@people_vaccinated_per_hundred,''),
-people_fully_vaccinated_per_hundred = NULLIF(@people_fully_vaccinated_per_hundred,''),
-new_vaccinations_smoothed_per_million = NULLIF(@new_vaccinations_smoothed_per_million,''),
+### 1. Data Import & Cleaning
 
-stringency_index = NULLIF(@stringency_index,''),
-population_density = NULLIF(@population_density,''),
-median_age = NULLIF(@median_age,''),
-aged_65_older = NULLIF(@aged_65_older,''),
-aged_70_older = NULLIF(@aged_70_older,''),
+Created MySQL tables for COVID deaths and vaccination data, then imported CSV files using `LOAD DATA INFILE`.
 
-gdp_per_capita = NULLIF(@gdp_per_capita,''),
-extreme_poverty = NULLIF(@extreme_poverty,''),
-cardiovasc_death_rate = NULLIF(@cardiovasc_death_rate,''),
-diabetes_prevalence = NULLIF(@diabetes_prevalence,''),
+The import process handled:
 
-female_smokers = NULLIF(@female_smokers,''),
-male_smokers = NULLIF(@male_smokers,''),
-handwashing_facilities = NULLIF(@handwashing_facilities,''),
-hospital_beds_per_thousand = NULLIF(@hospital_beds_per_thousand,''),
-life_expectancy = NULLIF(@life_expectancy,''),
-human_development_index = NULLIF(@human_development_index,'');
+* Blank values converted to `NULL`
+* Date formatting from CSV text into MySQL date format
+* Extra CSV columns during file import
+* Separate death and vaccination datasets
 
-select * from covidvaccinations;
+```sql
+date = STR_TO_DATE(@date, '%m/%d/%Y')
+```
 
-CREATE TABLE CovidVaccinations2 (
-    iso_code VARCHAR(10),
-    continent VARCHAR(50),
-    location VARCHAR(100),
-    date DATE,
+---
 
-    new_tests DOUBLE,
-    total_tests DOUBLE,
-    total_tests_per_thousand DOUBLE,
-    new_tests_per_thousand DOUBLE,
-    new_tests_smoothed DOUBLE,
-    new_tests_smoothed_per_thousand DOUBLE,
-    positive_rate DOUBLE,
-    tests_per_case DOUBLE,
-    tests_units VARCHAR(50),
+### 2. Total Cases vs. Total Deaths
 
-    total_vaccinations DOUBLE,
-    people_vaccinated DOUBLE,
-    people_fully_vaccinated DOUBLE,
-    new_vaccinations DOUBLE,
-    new_vaccinations_smoothed DOUBLE,
+Analyzed the relationship between total confirmed cases and total deaths to calculate the death percentage among reported cases.
 
-    total_vaccinations_per_hundred DOUBLE,
-    people_vaccinated_per_hundred DOUBLE,
-    people_fully_vaccinated_per_hundred DOUBLE,
-    new_vaccinations_smoothed_per_million DOUBLE,
+```sql
+(total_deaths / total_cases) * 100 AS deathspercase
+```
 
-    stringency_index DOUBLE,
-    population_density DOUBLE,
-    median_age DOUBLE,
-    aged_65_older DOUBLE,
-    aged_70_older DOUBLE,
+Example business question:
 
-    gdp_per_capita DOUBLE,
-    extreme_poverty DOUBLE,
-    cardiovasc_death_rate DOUBLE,
-    diabetes_prevalence DOUBLE,
+* What percentage of reported COVID cases resulted in death?
 
-    female_smokers DOUBLE,
-    male_smokers DOUBLE,
-    handwashing_facilities DOUBLE,
-    hospital_beds_per_thousand DOUBLE,
-    life_expectancy DOUBLE,
-    human_development_index DOUBLE
-);
+---
 
-LOAD DATA INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/CovidVax.csv'
-INTO TABLE CovidVaccinations2
-FIELDS TERMINATED BY ','
-OPTIONALLY ENCLOSED BY '"'
-LINES TERMINATED BY '\r\n'
-IGNORE 1 ROWS
-(@iso_code,@continent,@location,@date,@new_tests,@total_tests,@total_tests_per_thousand,
-@new_tests_per_thousand,@new_tests_smoothed,@new_tests_smoothed_per_thousand,
-@positive_rate,@tests_per_case,@tests_units,@total_vaccinations,@people_vaccinated,
-@people_fully_vaccinated,@new_vaccinations,@new_vaccinations_smoothed,
-@total_vaccinations_per_hundred,@people_vaccinated_per_hundred,
-@people_fully_vaccinated_per_hundred,@new_vaccinations_smoothed_per_million,
-@stringency_index,@population_density,@median_age,@aged_65_older,@aged_70_older,
-@gdp_per_capita,@extreme_poverty,@cardiovasc_death_rate,@diabetes_prevalence,
-@female_smokers,@male_smokers,@handwashing_facilities,@hospital_beds_per_thousand,
-@life_expectancy,@human_development_index)
-SET
-date = STR_TO_DATE(@date,'%m/%d/%Y');
+### 3. Total Cases vs. Population
 
-select * from covidvaccinations;
+Compared total cases against population to estimate the percentage of the population that contracted COVID.
 
-select location, date, total_cases, new_cases, total_deaths, population 
-from coviddeaths
-order by 1,2;
+```sql
+(total_cases / population) * 100 AS contractionpercentage
+```
 
-/* Looking at Total Cases vs total deaths in the US to show the likelihood of dying if you contracted covid in each country,
-in this case, the United States*/
-select location, date, total_cases, total_deaths, (total_deaths/total_cases)*100 as deathspercase
-from coviddeaths
-where location like '%states%'
-order by date desc;
+Example business question:
 
-/*Looking at Total Cases vs Population
-in this case, the United States*/
-select location, date, total_cases, population, (total_cases/population)*100 as contractionpercentage
-from coviddeaths
-where location like '%states%'
-order by date;
+* What share of a country’s population has been infected?
 
-/*Look at Counties with Highest Infection Rate compared to Population*/
-select location, population, MAX(total_cases) as HighestInfectionCount, max(total_cases/population)*100 as HighestInfectionRate
-from coviddeaths
-Group by location,population
-order by HighestInfectionRate desc;
+---
 
-/*Look at countries with highest death count*/
-/*Includes clean-up for where Location is not Subtotaled by Continent*/
-select location, MAX(total_deaths) as TotalDeathCount
-from coviddeaths
-	/*Includes clean-up for where Location is not Subtotaled by Continent. 
-	We noticed that in raw data, Location is listed as a continent where the continent column is listed as null*/
-	where continent is not null
-Group by location
-order by TotalDeathCount desc;
+### 4. Countries with Highest Infection Rates
 
-/*Look at continent with highest death count
-We noticed that in raw data, Location is listed as a continent where the continent column is listed as null**/
-select continent, MAX(total_deaths) as TotalDeathCount
-from coviddeaths
-	/*We noticed that in raw data, Location is listed as a continent where the continent column is listed as null*/
-	where continent is not null
-Group by continent
-order by TotalDeathCount desc;
+Identified countries with the highest infection counts and infection rates relative to population.
 
+```sql
+MAX(total_cases / population) * 100 AS HighestInfectionRate
+```
 
-/*Global numbers per day*/
-select date, sum(new_cases) as total_cases, sum(new_deaths) as total_deaths, (sum(new_deaths)/sum(new_cases))*100 as DeathPercentage
-from coviddeaths
-	/*Includes clean-up for where Location is not Subtotaled by Continent. 
-	We noticed that in raw data, Location is listed as a continent where the continent column is listed as null*/
-	where continent is not null
-    group by date
-order by 1;
+---
 
+### 5. Countries with Highest Death Counts
 
-/*Using Window Function for Rolling Count*/
-select dea.continent, dea.location, dea.date, dea.population, vac.new_vaccinations, 
-	sum(vac.new_vaccinations) over (partition by dea.Location order by dea.location, dea.date) as rollingvaccinationcount,
-    ((sum(vac.new_vaccinations) over (partition by dea.Location order by dea.location, dea.date))/dea.population)*100 as vaccination_rate
-from coviddeaths dea
-join covidvaccinations vac
-	on dea.location=vac.location 
-    and dea.date=vac.date
-where dea.continent is not null
-order by 2,3;
-    
-/*Using CTE to also Find Vaccination Rate and CASE WHEN to confirm calculations match, handles Nulls */
-With PopvsVac (Continent,Location, Date, Population, NewVaccinations, RollingPeopleVaccinated, VaccinationRate_NoCte)
-as 
-(select dea.continent, dea.location, dea.date, dea.population, vac.new_vaccinations, 
-	sum(vac.new_vaccinations) over (partition by dea.Location order by dea.location, dea.date) as rollingvaccinationcount,
-    ((sum(vac.new_vaccinations) over (partition by dea.Location order by dea.location, dea.date))/dea.population)*100 as vaccination_rate
-from coviddeaths dea
-join covidvaccinations vac
-	on dea.location=vac.location 
-    and dea.date=vac.date
-where dea.continent is not null
-order by 2,3
+Calculated the highest total death count by country while excluding subtotal rows where continent values were missing.
+
+```sql
+WHERE continent IS NOT NULL
+```
+
+This helped avoid mixing country-level rows with continent-level subtotal rows.
+
+---
+
+### 6. Death Count by Continent
+
+Aggregated death counts by continent to compare COVID mortality impact across regions.
+
+```sql
+SELECT continent, MAX(total_deaths) AS TotalDeathCount
+FROM coviddeaths
+WHERE continent IS NOT NULL
+GROUP BY continent;
+```
+
+---
+
+### 7. Global Numbers by Day
+
+Calculated daily global totals for new cases, new deaths, and death percentage.
+
+```sql
+SUM(new_deaths) / SUM(new_cases) * 100 AS DeathPercentage
+```
+
+---
+
+### 8. Rolling Vaccination Count
+
+Joined death and vaccination datasets to calculate cumulative vaccination counts by country using a window function.
+
+```sql
+SUM(vac.new_vaccinations) OVER (
+    PARTITION BY dea.location
+    ORDER BY dea.location, dea.date
 )
-Select *, 
-	(RollingPeopleVaccinated/Population) * 100 as VaccinationRate_Cte /*This works because we ordered data set already by Location and Date in CTE*/,
-	CASE 
-		WHEN VaccinationRate_NoCte = (RollingPeopleVaccinated/Population) * 100 then 'Matched' 
-		WHEN VaccinationRate_NoCte is null and (RollingPeopleVaccinated/Population) * 100 is null then 'Matched'
-		else 'Different' end as VaccinationRate_Check
-from PopvsVac;
+```
 
+---
 
-/*Using Temp Table to also Find Vaccination Rate*/
-DROP TABLE if exists PercentPopVaccination;
-CREATE TEMPORARY TABLE PercentPopVaccination
-(Continent varchar(255),
-Location varchar(255), 
-Date datetime, 
-Population numeric, 
-NewVaccinations numeric, 
-RollingPeopleVaccinated numeric);
+### 9. Vaccination Rate Analysis
 
-Insert into PercentPopVaccination
-select dea.continent, dea.location, dea.date, dea.population, vac.new_vaccinations, 
-	sum(vac.new_vaccinations) over (partition by dea.Location order by dea.location, dea.date) as rollingvaccinationcount
-from coviddeaths dea
-join covidvaccinations vac
-	on dea.location=vac.location 
-    and dea.date=vac.date
-where dea.continent is not null
-order by 2,3;
+Calculated vaccination rate as rolling vaccinations divided by population.
 
-Select *, (RollingPeopleVaccinated/Population) * 100 as VaccinationRate_TempTable
-from PercentPopVaccination;
+The project demonstrates this calculation using:
 
-/*Create Views to Store Data for visualizations*/
-DROP VIEW if exists TotalDeathbyContinent;
-Create View TotalDeathbyContinent
-as
-select continent, MAX(total_deaths) as TotalDeathCount
-from coviddeaths
-	/*We noticed that in raw data, Location is listed as a continent where the continent column is listed as null*/
-	where continent is not null
-Group by continent
-order by TotalDeathCount desc;
+* Direct window function query
+* Common Table Expression (CTE)
+* Temporary table
 
-Select * from totaldeathbycontinent;
+```sql
+(RollingPeopleVaccinated / Population) * 100 AS VaccinationRate
+```
+
+---
+
+### 10. View Creation for Visualization
+
+Created a SQL view to store summarized death count by continent for future dashboarding or visualization work.
+
+```sql
+CREATE VIEW TotalDeathbyContinent AS
+SELECT continent, MAX(total_deaths) AS TotalDeathCount
+FROM coviddeaths
+WHERE continent IS NOT NULL
+GROUP BY continent;
+```
+
+---
+
+## 📈 Example Outputs
+
+This project produces the following analytical outputs:
+
+- **COVID Death Percentage by Country**
+- **COVID Infection Percentage by Population**
+- **Countries with Highest Infection Rates**
+- **Countries with Highest Death Counts**
+- **Global Daily Case and Death Trends**
+- **Rolling Vaccination Count by Country**
+- **Vaccination Rate by Population**
+- **Death Count by Continent View**
+
+---
+
+## 🚀 How to Run
+
+1. Create the MySQL tables:
+
+```sql
+CREATE TABLE CovidDeaths (...);
+CREATE TABLE CovidVaccinations (...);
+```
+
+2. Place CSV files in the MySQL upload directory:
+
+```text
+C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/
+```
+
+3. Import CSV files using `LOAD DATA INFILE`.
+
+4. Run the exploratory SQL queries.
+
+5. Use the created view for visualization:
+
+```sql
+SELECT *
+FROM TotalDeathbyContinent;
+```
+
+---
+
+## 💡 Key Takeaways
+
+* SQL can be used to clean, transform, and analyze large public health datasets
+* `NULLIF` helps safely convert blank CSV values into usable SQL nulls
+* Window functions are useful for cumulative metrics like rolling vaccination counts
+* Filtering out subtotal rows improves country- and continent-level accuracy
+* Views can prepare analysis outputs for dashboard tools like Tableau or Power BI
+
+---
+
+## 🛠️ Tools Used
+
+* MySQL
+* SQL
+* CSV data import
+* Views for visualization preparation
+
+---
+
+## 📌 Future Improvements
+
+* Build Tableau dashboard using SQL output views
+* Add rolling averages for cases and deaths
+* Compare vaccination rates against death rates
+* Add country-level filtering by region or income group
+* Create additional views for dashboard-ready outputs
+
+---
+
+## 👤 Author
+
+Nicole Doan
