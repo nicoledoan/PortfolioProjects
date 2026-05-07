@@ -1,8 +1,10 @@
-# 🍽️ Restaurant Inventory Analysis (SQL Project)
+# 🍽️ Restaurant Inventory Operations Analysis (SQL Project)
 
 ## 📌 Overview
 
-This project analyzes restaurant food and drink inventory data using MySQL to evaluate inventory distribution, identify outdated pricing records, and generate shopping/restocking insights from inventory history. It demonstrates how operational inventory data can be transformed into actionable business insights using joins, aggregations, window functions, and Common Table Expressions (CTEs).
+This project analyzes restaurant inventory and pricing data using MySQL to support operational decision-making around inventory management, data quality, and restocking workflows. The analysis focuses on identifying inventory distribution patterns, auditing outdated pricing records, and generating actionable shopping lists from historical inventory data.
+
+The project demonstrates how SQL can be used for operational analytics through data cleaning, joins, aggregations, Common Table Expressions (CTEs), and reporting logic.
 
 ---
 
@@ -10,19 +12,17 @@ This project analyzes restaurant food and drink inventory data using MySQL to ev
 
 The project is built on three relational tables:
 
-* **foods** – food item catalog including pricing, brand, and storage information
+* **foods** – food item catalog including pricing, storage type, and brand information
 * **drinks** – drink item catalog including pricing and storage information
-* **food_inventories** – historical food inventory quantity tracking
+* **food_inventories** – historical inventory quantity tracking
 
 ---
 
 ## ⚙️ Key Techniques Used
 
 * Common Table Expressions (CTEs)
-* Window Functions:
-
-  * `SUM() OVER`
-* Aggregations (`COUNT`, `MAX`)
+* Aggregate Functions (`COUNT`, `MAX`)
+* Window Functions (`SUM() OVER`)
 * Multi-table joins
 * `UNION ALL`
 * Data cleaning with `ALTER TABLE` and `UPDATE`
@@ -35,8 +35,8 @@ The project is built on three relational tables:
 
 ### 1. Data Cleaning & Standardization
 
-* Fixed imported BOM/encoding issues in column names
-* Standardized missing storage type values
+* Fixed imported BOM/encoding issues in primary key column names
+* Standardized blank storage type values to improve reporting consistency
 
 ```sql
 UPDATE foods
@@ -46,10 +46,10 @@ WHERE storage_type = '';
 
 ---
 
-### 2. Food Brand Distribution
+### 2. Brand Distribution Analysis
 
-* Calculated total number of foods per brand
-* Calculated each brand’s percentage contribution to the full food catalog using a window function
+* Calculated total food items per brand
+* Measured each brand’s contribution to the overall inventory catalog using a window function
 
 ```sql
 ROUND(
@@ -60,12 +60,12 @@ ROUND(
 
 ---
 
-### 3. Storage Type Analysis
+### 3. Storage Type Operational Analysis
 
-* Aggregated food counts by storage category
-* Evaluated inventory distribution across storage types
+* Aggregated inventory counts by storage category
+* Evaluated operational distribution across frozen, refrigerated, and dry storage inventory
 
-| Storage Type | Example Insight |
+| Storage Type | Operational Insight |
 |---|---|
 | Frozen | High inventory concentration |
 | Refrigerated | Moderate inventory volume |
@@ -73,12 +73,13 @@ ROUND(
 
 ---
 
-### 4. Price List Audit
+### 4. Pricing Record Audit
 
-Combined food and drink datasets to identify outdated pricing records:
+Combined food and drink datasets into a unified operational report:
 
-* Calculated days since last price update
-* Unified food and drink reporting using `UNION ALL`
+* Calculated days since last pricing update
+* Identified records potentially requiring pricing review or refresh
+* Standardized reporting across inventory categories using `UNION ALL`
 
 ```sql
 DATEDIFF(
@@ -89,14 +90,14 @@ DATEDIFF(
 
 ---
 
-### 5. Shopping List Generation
+### 5. Inventory Restocking Workflow
 
 Built a shopping/restocking report using the most recent inventory snapshot:
 
-* Pulled latest inventory date using a CTE
-* Joined latest inventory levels back to the foods table
-* Replaced null inventory quantities with `0` using `COALESCE`
-* Prioritized lowest-stock items first
+* Retrieved latest inventory records using a CTE
+* Joined latest inventory quantities back to the product catalog
+* Replaced null quantities with `0` using `COALESCE`
+* Prioritized lowest-stock items for operational purchasing review
 
 ```sql
 COALESCE(i.quantity, 0)
@@ -106,19 +107,14 @@ COALESCE(i.quantity, 0)
 
 ## 📈 Example Outputs
 
-This project produces the following analytical outputs:
+This project generates operational reporting outputs including:
 
-- **Brand Distribution Analysis**  
-  → Food counts and percentage contribution by brand
+- **Brand Inventory Distribution**
+- **Storage Type Summary Reporting**
+- **Outdated Pricing Audit**
+- **Low-Inventory Restocking List**
 
-- **Storage Type Summary**  
-  → Inventory distribution across storage categories
-
-- **Outdated Pricing Report**  
-  → Food and drink items with aging price list records
-
-- **Shopping / Restocking List**  
-  → Lowest inventory items prioritized for purchasing
+These outputs support inventory visibility, pricing maintenance, and operational purchasing decisions.
 
 ---
 
@@ -133,7 +129,7 @@ USE restaurant_project;
 
 2. Import CSV datasets into MySQL tables
 
-3. Run the SQL analysis script:
+3. Execute the SQL analysis script:
 
 ```sql
 restaurant_inventory_analysis.sql
@@ -143,11 +139,11 @@ restaurant_inventory_analysis.sql
 
 ## 💡 Key Takeaways
 
-* Window functions simplify percentage-based analysis
-* CTEs improve readability for multi-step inventory logic
-* `UNION ALL` enables consolidated operational reporting
-* Null handling is critical when analyzing inventory datasets
-* SQL can support operational decision-making beyond financial analytics
+* SQL can support operational inventory management and workflow optimization
+* CTEs improve readability for multi-step operational reporting
+* Window functions simplify percentage-based inventory analysis
+* Data cleaning is critical for accurate operational reporting
+* Consolidated reporting improves visibility across inventory categories
 
 ---
 
@@ -162,9 +158,9 @@ restaurant_inventory_analysis.sql
 
 * Build dashboard visualizations in Tableau or Power BI
 * Add inventory turnover analysis
-* Track inventory trends over time
-* Add supplier/vendor performance analysis
-* Create automated low-stock alerts
+* Analyze inventory trends over time
+* Add supplier/vendor performance metrics
+* Implement automated low-stock alert logic
 
 ---
 
