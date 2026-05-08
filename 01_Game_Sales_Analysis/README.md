@@ -170,7 +170,7 @@ USE store_project;
 
 Interactive Tableau dashboard:
 
-[View Dashboard on Tableau Public](https://public.tableau.com/views/yourdashboard)
+[View Dashboard on Tableau Public]([https://public.tableau.com/views/yourdashboard](https://public.tableau.com/views/GameSalesAnalysis_17781851692000/Dashboard1?:language=en-US&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link))
 
 ### Dashboard Preview
 
