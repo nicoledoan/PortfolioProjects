@@ -166,10 +166,18 @@ USE store_project;
 * SQL (CTEs, window functions, aggregations)
 
 ---
+## 📊 Tableau Dashboard
+
+Interactive Tableau dashboard:
+
+[View Dashboard on Tableau Public](https://public.tableau.com/views/yourdashboard)
+
+### Dashboard Preview
+
+![Dashboard Preview](dashboard_preview.png)
 
 ## 📌 Future Improvements
 
-* Build dashboard visualizations (Tableau / Power BI)
 * Add customer-level segmentation
 * Analyze product/category performance
 
